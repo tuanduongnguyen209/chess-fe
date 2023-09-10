@@ -22,5 +22,6 @@ export interface GameEvent {
     type: GameEventType;
     status: GameStatus;
     gameId: string;
+    playerId?: string;
     boardState?: BoardState;
 }

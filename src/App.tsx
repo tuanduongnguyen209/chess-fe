@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { v4 as uuidv4 } from "uuid";
 import GameList from "src/components/GameList";
@@ -16,18 +16,28 @@ const GameContext = createContext({
 function App() {
     const playerId = useMemo(() => uuidv4(), []);
     const [gameId, setGameId] = useState("");
+
+    const joinGame = useCallback(
+        (gameId: string) => {
+            if (!playerId) return;
+            GameService.joinGame(gameId);
+            setGameId(gameId);
+        },
+        [playerId]
+    );
+
     useEffect(() => {
         if (!playerId) return;
         GameService.connect(playerId);
         GameService.addEventListener("GAME_CREATED", (event) => {
             console.log("GAME_CREATED", event);
             if (!isCustomEvent(event)) return;
-            setGameId(event.detail.gameId);
+            joinGame(event.detail.gameId);
         });
         return () => {
             GameService.disconnect();
         };
-    }, [playerId]);
+    }, [joinGame, playerId]);
 
     function createGame() {
         if (gameId) return;
@@ -50,7 +60,7 @@ function App() {
             ) : (
                 <>
                     <button onClick={createGame}>New Game</button>
-                    <GameList />
+                    <GameList onJoinGame={joinGame} />
                 </>
             )}
         </GameContext.Provider>
