@@ -6,22 +6,20 @@ class WebSocketService {
         this.socket = null;
     }
 
-    connect(onConnected: () => void, onClosed: () => void) {
-        // Establish WebSocket connection
-        this.socket = new WebSocket("ws://localhost:8080/api/ws");
+    connect() {
+        return new Promise<void>((resolve, reject) => {
+            this.socket = new WebSocket("ws://localhost:8080/api/ws");
 
-        // Add event listeners for WebSocket events (e.g., onmessage, onclose, etc.)
-        this.socket.onopen = () => {
-            console.log("WebSocket connected");
-            onConnected();
-        };
+            this.socket.onopen = () => {
+                console.log("WebSocket connected");
+                resolve();
+            };
 
-        this.socket.onclose = () => {
-            console.log("WebSocket disconnected");
-            onClosed();
-        };
-
-        // Handle other WebSocket events here
+            this.socket.onclose = () => {
+                console.log("WebSocket disconnected");
+                reject();
+            };
+        });
     }
 
     send(message: string) {
@@ -33,8 +31,12 @@ class WebSocketService {
     registerHandler(handler: (message: any) => void) {
         if (this.socket) {
             this.socket.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                handler(message);
+                try {
+                    const message = JSON.parse(event.data);
+                    handler(message);
+                } catch (error: any) {
+                    handler(error.message);
+                }
             };
         }
     }

@@ -1,4 +1,5 @@
 import { GameEvent } from "src/models/GameEvent";
+import HttpService from "src/services/HttpService";
 import WebSocketService from "src/services/WebSocketService";
 
 class GameService extends EventTarget {
@@ -16,25 +17,26 @@ class GameService extends EventTarget {
     }
 
     connect(playerId: string) {
-        WebSocketService.connect(
-            () => {
-                this.playerId = playerId;
-                this.connected = true;
-                WebSocketService.registerHandler(this.handleGameMessage);
-            },
-            () => {
-                this.connected = false;
-            }
-        );
+        return new Promise<void>((resolve, reject) => {
+            WebSocketService.connect()
+                .then(() => {
+                    this.playerId = playerId;
+                    this.connected = true;
+                    WebSocketService.registerHandler(this.handleGameMessage);
+                    resolve();
+                })
+                .catch(() => {
+                    this.connected = false;
+                    reject();
+                });
+        });
     }
 
-    createGame() {
-        WebSocketService.send(
-            JSON.stringify({
-                type: "CREATE_A_NEW_GAME",
-                playerId: this.playerId,
-            })
-        );
+    async createGame(playerId: string) {
+        this.playerId = playerId;
+        const res = await HttpService.createGameSession(playerId);
+        const gameId = res.data.gameId;
+        return gameId;
     }
 
     joinGame(gameId: string) {
@@ -47,7 +49,11 @@ class GameService extends EventTarget {
         );
     }
 
-    private handleGameMessage(message: GameEvent) {
+    private handleGameMessage(message: GameEvent | string) {
+        if (typeof message === "string") {
+            console.error("GAME ERROR:", message);
+            return;
+        }
         try {
             console.log("GAME EVENT:", message);
             this.dispatchEvent(new CustomEvent(message.type, { detail: message }));

@@ -14,13 +14,24 @@ const GameContext = createContext({
 });
 
 function App() {
-    const playerId = useMemo(() => uuidv4(), []);
+    const playerId = useMemo(() => {
+        const storedPlayerId = localStorage.getItem("playerId");
+        if (storedPlayerId) return storedPlayerId;
+        const newPlayerId = uuidv4();
+        localStorage.setItem("playerId", newPlayerId);
+        return newPlayerId;
+    }, []);
     const [gameId, setGameId] = useState("");
 
     const joinGame = useCallback(
-        (gameId: string) => {
+        async (gameId: string) => {
             if (!playerId) return;
-            GameService.joinGame(gameId);
+            try {
+                await GameService.connect(playerId);
+                GameService.joinGame(gameId);
+            } catch (error) {
+                console.log(error);
+            }
             setGameId(gameId);
         },
         [playerId]
@@ -28,7 +39,6 @@ function App() {
 
     useEffect(() => {
         if (!playerId) return;
-        GameService.connect(playerId);
         GameService.addEventListener("GAME_CREATED", (event) => {
             console.log("GAME_CREATED", event);
             if (!isCustomEvent(event)) return;
@@ -39,9 +49,10 @@ function App() {
         };
     }, [joinGame, playerId]);
 
-    function createGame() {
+    async function createGame() {
         if (gameId) return;
-        GameService.createGame();
+        const createdGameId = await GameService.createGame(playerId);
+        joinGame(createdGameId);
     }
 
     return (

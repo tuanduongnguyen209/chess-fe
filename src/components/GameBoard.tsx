@@ -13,6 +13,7 @@ export interface GameBoardProps {
 export function GameBoard({ gameId, playerId }: GameBoardProps) {
     const handleBoardStateChanged = useCallback(
         (event: Event) => {
+            console.log("Game Board Event:", event);
             if (!(event instanceof CustomEvent)) return;
             const gameEvent = event.detail as GameEvent;
             if (gameEvent.gameId !== gameId) return;
@@ -32,6 +33,7 @@ export function GameBoard({ gameId, playerId }: GameBoardProps) {
             GameService.removeEventListener("BOARD_STATE_CHANGED", handleBoardStateChanged);
     }, [gameId, handleBoardStateChanged, playerId]);
     const [position, setPosition] = useState<BoardPosition>({});
+    console.log("position", position);
     return (
         <div
             style={{
