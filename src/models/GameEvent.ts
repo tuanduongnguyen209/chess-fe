@@ -24,4 +24,5 @@ export interface GameEvent {
     gameId: string;
     playerId?: string;
     boardState?: BoardState;
+    color?: "WHITE" | "BLACK";
 }

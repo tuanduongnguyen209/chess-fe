@@ -15,3 +15,14 @@ export function mapToBoardSquare(piece: Piece): Square {
     const y = 8 - piece.y;
     return `${x}${y}` as Square;
 }
+
+export function mapToMoveString(sourceSquare: Square, targetSquare: Square): string {
+    const sources = sourceSquare.split("");
+    const sourcesX = sources[0].charCodeAt(0) - 97;
+    const sourcesY = 8 - parseInt(sources[1]);
+
+    const targets = targetSquare.split("");
+    const targetsX = targets[0].charCodeAt(0) - 97;
+    const targetsY = 8 - parseInt(targets[1]);
+    return `${sourcesX},${sourcesY},${targetsX},${targetsY}`;
+}

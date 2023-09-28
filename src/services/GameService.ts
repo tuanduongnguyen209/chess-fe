@@ -1,3 +1,4 @@
+import { GameCommand } from "src/models/GameCommand";
 import { GameEvent } from "src/models/GameEvent";
 import HttpService from "src/services/HttpService";
 import WebSocketService from "src/services/WebSocketService";
@@ -47,6 +48,10 @@ class GameService extends EventTarget {
                 playerId: this.playerId,
             })
         );
+    }
+
+    sendCommand(command: GameCommand) {
+        WebSocketService.send(JSON.stringify(command));
     }
 
     private handleGameMessage(message: GameEvent | string) {
