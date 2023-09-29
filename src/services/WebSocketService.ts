@@ -8,7 +8,7 @@ class WebSocketService {
 
     connect() {
         return new Promise<void>((resolve, reject) => {
-            this.socket = new WebSocket("ws://localhost:8080/api/ws");
+            this.socket = new WebSocket(import.meta.env.VITE_WS_URL);
 
             this.socket.onopen = () => {
                 console.log("WebSocket connected");
@@ -28,6 +28,7 @@ class WebSocketService {
         }
     }
 
+    // eslint-disable-next-line no-unused-vars
     registerHandler(handler: (message: any) => void) {
         if (this.socket) {
             this.socket.onmessage = (event) => {

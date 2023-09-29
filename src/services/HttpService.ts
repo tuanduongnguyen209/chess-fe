@@ -4,7 +4,7 @@ import { GameSession } from "src/models/GameSession";
 class HttpService {
     static async createGameSession(playerId: string) {
         return await axios.post<GameSession>(
-            "http://localhost:8080/api/game-sessions",
+            `${import.meta.env.VITE_API_URL}/game-sessions`,
             {},
             { params: { playerId } }
         );
