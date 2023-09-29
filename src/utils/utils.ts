@@ -26,3 +26,13 @@ export function mapToMoveString(sourceSquare: Square, targetSquare: Square): str
     const targetsY = 8 - parseInt(targets[1]);
     return `${sourcesX},${sourcesY},${targetsX},${targetsY}`;
 }
+
+export function isEmpty(obj: any) {
+    for (const prop in obj) {
+        if (Object.hasOwn(obj, prop)) {
+            return false;
+        }
+    }
+
+    return true;
+}

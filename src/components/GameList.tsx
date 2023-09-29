@@ -1,13 +1,22 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import { GameContext } from "src/App";
 import { GameSession } from "src/models/GameSession";
+import GameService from "src/services/GameService";
 import HttpService from "src/services/HttpService";
 
-interface GameListProps {
-    onJoinGame: (gameId: string) => void;
-}
-
-function GameList({ onJoinGame }: GameListProps) {
+function GameList() {
+    const navigate = useNavigate();
+    const context = useContext(GameContext);
+    const playerId = context.playerId;
     const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
+
+    async function createGame() {
+        const createdGameId = await GameService.createGame(playerId);
+        navigate(`/game/${createdGameId}`);
+    }
+
     useEffect(() => {
         HttpService.getGameSessions()
             .then((response) => {
@@ -19,20 +28,13 @@ function GameList({ onJoinGame }: GameListProps) {
     }, []);
     return (
         <div>
+            <button onClick={createGame}>Create Game</button>
             <h3>Lobbies:</h3>
             {gameSessions.length === 0 ? <p>No lobbies found</p> : null}
             <ul>
                 {gameSessions.map((gameSession) => (
                     <li key={gameSession.gameId}>
-                        <a
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                onJoinGame(gameSession.gameId);
-                            }}
-                        >
-                            {gameSession.gameId}
-                        </a>
+                        <Link to={`/game/${gameSession.gameId}`}>{gameSession.gameId}</Link>
                     </li>
                 ))}
             </ul>
