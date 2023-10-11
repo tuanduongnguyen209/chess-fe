@@ -10,7 +10,7 @@ class HttpService {
         );
     }
     static async getGameSessions() {
-        return await axios.get<GameSession[]>("http://localhost:8080/api/game-sessions");
+        return await axios.get<GameSession[]>(`${import.meta.env.VITE_API_URL}/game-sessions`);
     }
 }
 
